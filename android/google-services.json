@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "738965874969",
+    "firebase_url": "https://thebengalcraft-378f6.firebaseio.com",
+    "project_id": "thebengalcraft-378f6",
+    "storage_bucket": "thebengalcraft-378f6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738965874969:android:913a762653b93bc93dbd88",
+        "android_client_info": {
+          "package_name": "com.shipco.tbc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738965874969-l6v18k8i3a4r3f00b8uamd7kgliip1ea.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuF6R5CTOIaZq2k-rXw8sYRq02hoh-vB4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738965874969-l6v18k8i3a4r3f00b8uamd7kgliip1ea.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738965874969:android:ad15eb37966e18733dbd88",
+        "android_client_info": {
+          "package_name": "com.shipco.the_bengal_craft"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738965874969-l6v18k8i3a4r3f00b8uamd7kgliip1ea.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuF6R5CTOIaZq2k-rXw8sYRq02hoh-vB4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738965874969-l6v18k8i3a4r3f00b8uamd7kgliip1ea.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -11,15 +11,16 @@ import 'package:uuid/uuid.dart';
 
 class Payment_Screen extends StatefulWidget {
 
-
-  Payment_Screen();
+  String custName;
+  Payment_Screen(this.custName);
 
   @override
   State<StatefulWidget> createState() => _Paymet_Screen();
 }
 
 class _Paymet_Screen extends State<Payment_Screen> {
-
+  //String custName;
+  //_Payment_Screen(this.custName);
   final _key = GlobalKey<ScaffoldState>();
   //double totalAmount = 0;
   Razorpay razorpay;
@@ -46,8 +47,8 @@ class _Paymet_Screen extends State<Payment_Screen> {
   void openCheckout(){
     final user = Provider.of<UserProvider>(context,listen: false);
     var options = {
-      "key" : "rzp_live_lniFtCKqALjDUY",
-      //"key" : "rzp_test_zPkqQnWPAgL6Bq",//test key
+      //"key" : "rzp_live_lniFtCKqALjDUY",
+      "key" : "rzp_test_zPkqQnWPAgL6Bq",//test key
       "amount" : user.userModel.totalCartPrice*100,
       "name" : "Your purchase value",
       "description" : "Payment for the some random product",
@@ -117,7 +118,18 @@ class _Paymet_Screen extends State<Payment_Screen> {
             SizedBox(height: 12,),
             RaisedButton(
               color: Colors.blue,
-              child: Text("Pay Now", style: TextStyle(
+              child: Text("Pay Online", style: TextStyle(
+                  color: Colors.white
+              ),),
+              onPressed: (){
+                openCheckout();
+              },
+            ),
+            Text(this.widget.custName),
+            SizedBox(height: 12,),
+            RaisedButton(
+              color: Colors.blue,
+              child: Text("Pay by Cash", style: TextStyle(
                   color: Colors.white
               ),),
               onPressed: (){

@@ -142,4 +142,13 @@ class DataCollection{
     return await firestoreInstance
         .collection("products").where("category", isEqualTo: categoryName).get();
   }
+
+  void sellProductFromApp(ProductModel productModel) {
+    
+  }
+
+  Future getCustomerList() async{
+    return await firestoreInstance
+        .collection("users").where("userType", isEqualTo: "CUSTOMER").get();
+  }
 }

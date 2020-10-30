@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_drawer/curved_drawer.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -488,10 +489,10 @@ class Widget_Factory{
     );
   }
 
-  int getProductPrice(UserModel user, ProductModel product){
+  int getProductPrice(String userType, ProductModel product){
     int price = 0;
-    String userType;
-    user == null ? price = product.cprice : userType = user.userType;
+    //String userType;//String userType;
+    //user == null ? price = product.cprice : userType = user.userType;
 
     userType == "EMP" ?
         price = product.mprice
@@ -505,7 +506,11 @@ class Widget_Factory{
     userType == "CUSTOMER" ?
       price = product.cprice
         :
-     price = product.cprice;
+    userType == "LRESELLER" ?
+     price = product.lprice
+        :
+    price = product.lprice;
+
 
     return price;
     //return TextSpan(text: '\₹ ${price} \n', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold));
@@ -978,7 +983,7 @@ class Widget_Factory{
     )
         : FutureBuilder(
         future: DataCollection()
-            .getImageFromStorage(context, imageUrl, 100, 100),
+            .getImageFromStorage(context, imageUrl, 60, 60),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return ClipRRect(
@@ -1008,7 +1013,7 @@ class Widget_Factory{
     );
   }
 
-  Widget getCartPageBOdy(BuildContext context, GlobalKey<ScaffoldState> _key) {
+  Widget getCartPageBody(BuildContext context, GlobalKey<ScaffoldState> _key) {
 
     final userProvider = Provider.of<UserProvider>(context);
     final appProvider = Provider.of<AppProvider>(context);
@@ -1111,7 +1116,32 @@ class Widget_Factory{
                 }),
           ),
 
+          Container(
+            child: RaisedButton(
+              child: Text("Select Customer"),
+              onPressed: (){
+                _showCustomerPopUp(context);
+              },
+            ),
+          ),
+          Container(
+            child: RaisedButton(
+              child: Text("Create Customer"),
+              onPressed: (){
+                
+              },
+            ),
 
+          ),
+          Container(
+            child: RaisedButton(
+              child: Text("Special Discount"),
+              onPressed: (){
+
+              },
+            ),
+
+          ),
 
           Container(
             height: 70,
@@ -1136,6 +1166,8 @@ class Widget_Factory{
                               fontWeight: FontWeight.normal)),
                     ]),
                   ),
+
+
                   Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20), color: black),
@@ -1201,13 +1233,14 @@ class Widget_Factory{
                                             width: 320.0,
                                             child: RaisedButton(
                                               onPressed: () async {
+                                                print(this.custName);
                                                 var uuid = Uuid();
                                                 String id = uuid.v4();
                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
-                                                            Payment_Screen()));
+                                                            Payment_Screen(this.custName)));
                                                 /*_orderServices.createOrder(
                                                 userId: userProvider.user.uid,
                                                 id: id,
@@ -1291,7 +1324,8 @@ class Widget_Factory{
       double _size) {
     final userProvider = Provider.of<UserProvider>(context);
     final appProvider = Provider.of<AppProvider>(context);
-    int price = Widget_Factory().getProductPrice(userProvider.userModel, widget.product);
+    int price = Widget_Factory().getProductPrice(userProvider.userModel.userType, widget.product);
+    String stock = widget.product.quantity <= 0 ? "Out of Stock" : "In Stock";
     return SafeArea(
         child: Container(
           color: Colors.black.withOpacity(0.9),
@@ -1372,16 +1406,20 @@ class Widget_Factory{
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                widget.product.name,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 20),
+
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  widget.product.name,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 20),
+                                ),
                               ),
                             ),
+
                             Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Text(
@@ -1402,7 +1440,8 @@ class Widget_Factory{
                       alignment: Alignment.centerLeft,
                       child: InkWell(
                         onTap: () {
-                          changeScreen(context, CartScreen());
+                          //changeScreen(context, CartScreen());
+                          _addToWishList();
                         },
                         child: Padding(
                             padding: const EdgeInsets.all(4),
@@ -1412,7 +1451,13 @@ class Widget_Factory{
                                   borderRadius: BorderRadius.circular(20)),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Icon(Icons.shopping_cart),
+                                child: Icon(
+                                    Icons.favorite,
+                                    color: Colors.pink,
+                                    size: 24.0,
+                                    semanticLabel: 'Wish list',
+                                    //Icons.favorite
+                                ),
                               ),
                             )),
                       ),
@@ -1469,7 +1514,7 @@ class Widget_Factory{
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8),
                               child: CustomText(
-                                text: "Select a Color",
+                                text: stock,
                                 color: white,
                               ),
                             ),
@@ -1508,27 +1553,7 @@ class Widget_Factory{
                                 color: white,
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(widget.product.sizes.toString()),
-                              /*DropdownButton<String>(
-                                value: _size.toString(),
-                                style: TextStyle(color: white),
-                                items: widget.product.sizes
-                                    .map<DropdownMenuItem<String>>(
-                                        (value) => DropdownMenuItem(
-                                            value: value.toString(),
-                                            child: CustomText(
-                                              text: value.toString(),
-                                              color: red,
-                                            )))
-                                    .toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _size = double.parse(value);
-                                  });
-                                }),*/
-                            )
+
                           ],
                         ),
                       ),
@@ -1547,7 +1572,8 @@ class Widget_Factory{
                             color: Colors.white,
                             elevation: 0.0,
                             child: MaterialButton(
-                              onPressed: () async {
+                              onPressed: widget.product.quantity <=0 ? null : () async {
+                                userProvider.userModel == null ? showUserLoggedIn(context):
                                 appProvider.changeIsLoading();
                                 bool success = await userProvider.addToCart(
                                     product: widget.product,
@@ -1565,6 +1591,7 @@ class Widget_Factory{
                                   appProvider.changeIsLoading();
                                   return;
                                 }
+
                               },
                               minWidth: MediaQuery.of(context).size.width,
                               child: appProvider.isLoading
@@ -1963,7 +1990,7 @@ class Widget_Factory{
             text: categories[index]["text"],
             press: () {
               changeScreen(context, ProductList(categories[index]["text"]));
-              print(categories[index]["text"]);
+              //print(categories[index]["text"]);
             },
           ),
         ),
@@ -2044,29 +2071,10 @@ class Widget_Factory{
                           itemCount: snapshot.data.length,
                           itemBuilder: (context, index) {
                             ProductModel productModel = ProductModel.fromSnapshot(snapshot.data[index]);
-                            var d = snapshot.data;
-                            int price =  DataCollection().getProductPrice(snapshot.data[index], userProvider.userModel);
-                            print(price);
-                            return GestureDetector(
+                            DocumentSnapshot data = snapshot.data[index];
+                            int price =  DataCollection().getProductPrice(data, userProvider.userModel);
 
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ProductDetails(product: productModel,)));
-                              },
-                              child: Column(
-                                children: <Widget>[
-                                  Widget_Factory().getImageFromDatabase(context,
-                                      snapshot.data[index].get('picture')),
-                                  Expanded(
-                                    child:
-                                    Text(snapshot.data[index].documentID + " ${price}"
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                            return _getPopularProducts(price, productModel, data, context);
                           });
                     }
                   }),
@@ -2146,7 +2154,239 @@ class Widget_Factory{
   }
 
   Widget getCategoryPageBody(BuildContext context, GlobalKey<ScaffoldState> key) {
+    final userProvider = Provider.of<UserProvider>(context);
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child:Column(
+        children: [
+          FutureBuilder(
+              future: DataCollection().getCategoryList(),
+              builder: (_, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Text("Loading...."),
+                  );
+                } else {
 
+                  return GridView.builder(
+
+                      primary: true,
+                      physics: ScrollPhysics(),
+                      padding: const EdgeInsets.all(5.0),
+                      shrinkWrap: true,
+                      gridDelegate:
+                      new SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2),
+                      itemCount: snapshot.data[0].get("name").length,
+                      itemBuilder: (context, index) {
+                      String name = snapshot.data[0].get("name")[index];
+
+                        return _getCategoryCard(context,name);
+                      });
+                }
+              }),
+        ],
+      ),),
+    );
+  }
+
+  void showUserLoggedIn(BuildContext context) {
+     showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("User Not Logged In!"),
+          content: new Text("Kindly Log in before add item to cart"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text("Login "),
+              onPressed: () {
+                changeScreen(context, Login());
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addToWishList() {
+
+  }
+
+  Widget _getCategoryCard(BuildContext context, String name) {
+    String categoryName;
+    if(name == "Linen"){
+      categoryName = "Linen.jpg";
+    }else if(name == "Cotton"){
+      categoryName = "Cotton.jpg";
+    }else if(name == "Tushar"){
+      categoryName = "Tushar.jpg";
+    }else if(name == "Resham"){
+      categoryName = "Resham.jpg";
+    }else if(name == "Art Silk"){
+      categoryName = "ArtSilk.jpg";
+    }else if(name == "Cotton Silk"){
+      categoryName = "CottonSilk.jpg";
+    }else if(name == "Silk"){
+      categoryName = "Muslin.jpg";
+    }
+    return Container(
+      height: 1000,
+
+      margin:EdgeInsets.all(8.0),
+      child: GestureDetector(
+
+        onTap: () {
+          changeScreen(context, ProductList(name));
+        },
+        child: Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Image.asset(
+
+                  "assets/images/${categoryName}",
+                height: 100,
+                fit:BoxFit.fill,
+                alignment: Alignment.center,
+              ),
+              Center(
+                child: Text(
+                  name,
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w700,
+
+
+                  ),
+                ),
+              ),
+
+            ],
+          ),
+        ),
+      ),
+    );
+
+  }
+
+  Widget _getPopularProducts(int price, ProductModel productModel,
+      DocumentSnapshot data, BuildContext context) {
+
+    return Container(
+      height: 500,
+      width: 200,
+      margin:EdgeInsets.all(8.0),
+      child: Card(
+
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+        child: Expanded(
+          child: Column(
+
+            //crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ProductDetails(product: productModel,)));
+                },
+                child: Widget_Factory().getImageFromDatabase(context,
+                    data.get('picture')),
+
+              ),
+              Expanded(child: Text(data.id ),),
+
+              Text(price.toString()),
+            ],
+          ),
+        ),
+        //),
+      ),
+    );
+
+
+  }
+
+  void _showCustomerPopUp(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            //this right here
+            child: Container(
+              height: 200,
+              child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child:Column(
+                      children: [
+                      FutureBuilder(
+                            future: DataCollection().getCustomerList(),
+                            builder: (_, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return Center(
+                                child: Text("Loading...."),
+                              );
+                            } else {
+
+                            return GridView.builder(
+
+                                primary: true,
+                                physics: ScrollPhysics(),
+                                padding: const EdgeInsets.all(5.0),
+                                shrinkWrap: true,
+                                gridDelegate:
+                                new SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3),
+                                itemCount: snapshot.data.docs.length,
+                                itemBuilder: (context, index) {
+                                  //String name = snapshot.data[0].get("name")[index];
+                                  return _customerCard(snapshot.data.docs[index], context);
+                                  //return _getCategoryCard(context,name);
+                                });
+                          }
+                  }),
+              ]
+              ),
+            ),
+          ));
+        });
+  }
+
+  String custName;
+  Widget _customerCard(QueryDocumentSnapshot docs, BuildContext context) {
+    return Container(
+      child: Card(
+        color: Colors.green,
+        child: Center(
+          child: GestureDetector(
+            onTap: (){
+              print(docs.get("name"));
+              this.custName = docs.get("name");
+              Navigator.pop(context);
+            },
+            child: Text(docs.get("name")),
+          ),
+          //
+        ),
+      ),
+    );
   }
 
 }

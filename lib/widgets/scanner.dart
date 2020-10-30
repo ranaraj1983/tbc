@@ -6,9 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:tbc/helpers/style.dart';
 import 'package:tbc/models/product.dart';
 import 'package:tbc/models/user.dart';
+import 'package:tbc/provider/app.dart';
+import 'package:tbc/provider/user.dart';
 import 'package:tbc/services/DataCollection.dart';
+import 'package:tbc/widgets/Widget_Factory.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -20,6 +25,7 @@ class ScannerWidget extends StatefulWidget {
 
 class _MyAppState extends State<ScannerWidget> {
   ScanResult scanResult;
+  final _key = GlobalKey<ScaffoldState>();
 
   final _flashOnController = TextEditingController(text: "Flash on");
   final _flashOffController = TextEditingController(text: "Flash off");
@@ -37,6 +43,7 @@ class _MyAppState extends State<ScannerWidget> {
   List<BarcodeFormat> selectedFormats = [..._possibleFormats];
   TextEditingController _pincodeController = new TextEditingController();
   String _weight;
+  int _value = 1;
   @override
   // ignore: type_annotate_public_apis
   initState() {
@@ -50,6 +57,8 @@ class _MyAppState extends State<ScannerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final appProvider = Provider.of<AppProvider>(context);
 
     var contentList = <Widget>[
       if (scanResult != null)
@@ -73,6 +82,7 @@ class _MyAppState extends State<ScannerWidget> {
                 title: Text("Format note"),
                 subtitle: Text(scanResult.formatNote ?? ""),
               ),*/
+
               FutureBuilder(
                 future: DataCollection().getProductById(scanResult.rawContent),
                 builder: (_, AsyncSnapshot snapshot) {
@@ -83,6 +93,22 @@ class _MyAppState extends State<ScannerWidget> {
                     );
                   } else {
                     _weight = snapshot.data.docs[0].data()['weight'].toString();
+                    ProductModel productModel = ProductModel.fromSnapshot(snapshot.data.docs[0]);
+                    print(_value);
+                    String userType;
+                    if(_value == 1){
+                      userType = "CUSTOMER";
+                    } else if(_value == 2){
+                      userType = "LRESELLER";
+                    }else if(_value == 3){
+                      userType = "RESELLER";
+                    }else if(_value == 4){
+                      userType = "EMP";
+                    }else if(_value == 5){
+                      userType = "WHOLESALER";
+                    }
+
+                    int price = Widget_Factory().getProductPrice(userType, productModel);
                     return snapshot.data.docs.length !=0 ? Column(
                       children: [
                         FadeInImage.memoryNetwork(
@@ -92,13 +118,39 @@ class _MyAppState extends State<ScannerWidget> {
                           height: 140,
                           width: 120,
                         ),
-                        Text("saree name : " + snapshot.data.docs[0].data()['name']),
-                        Text("customer price : " + snapshot.data.docs[0].data()['price'].toString()),
-                        Text("Reseller price : " + snapshot.data.docs[0].data()['rprice'].toString()),
-                        Text("Wholesaler price : " + snapshot.data.docs[0].data()['wprice'].toString()),
-                        Text("Size  : " + snapshot.data.docs[0].data()['size'].toString()),
-                        Text("Weight  : " + snapshot.data.docs[0].data()['weight'].toString()),
-                        Text("Stock  : " + snapshot.data.docs[0].data()['quantity'].toString()),
+                        Text("saree name : " + productModel.name),
+                        Text("customer price : " + productModel.cprice.toString()),
+                        Text("Reseller price : " + productModel.rprice.toString()),
+                        Text("Wholesaler price : " + productModel.wprice.toString()),
+                        Text("Member price : " + productModel.mprice.toString()),
+                        Text("Local reseller price : " + productModel.lprice.toString()),
+
+                        Text("Size  : " + productModel.sizes.toString()),
+                        Text("Weight  : " + productModel.weight.toString()),
+                        Text("Stock  : " + productModel.quantity.toString()),
+                        RaisedButton(
+                          child: Text("Sell"),
+                          onPressed: productModel.quantity <=0 ? null : () async{
+                            bool success = await userProvider.addToCart(
+                                product: productModel,
+                                color: productModel.colors,
+                                size: productModel.sizes.toString(), price: price);
+                            if (success) {
+                              /*_key.currentState.showSnackBar(
+                                  SnackBar(content: Text("Added to Cart!")));*/
+                              userProvider.reloadUserModel();
+                              //appProvider.changeIsLoading();
+                              return;
+                            } else {
+                              /*_key.currentState.showSnackBar(SnackBar(
+                                  content: Text("Not added to Cart!")));*/
+                              appProvider.changeIsLoading();
+                              return;
+                            }
+                            //DataCollection().sellProductFromApp(productModel);
+                            print(success);
+                          },
+                        ),
                       ],
                     ) : Text("No Product Found");
                     /*return GridView.builder(
@@ -122,6 +174,41 @@ class _MyAppState extends State<ScannerWidget> {
             ],
           ),
         ),
+      IconButton(
+        icon: Icon(Icons.camera),
+        tooltip: "Scan",
+        onPressed: scan,
+      ),
+      DropdownButton(
+          value: _value,
+          items: [
+            DropdownMenuItem(
+              child: Text("Customer"),
+              value: 1,
+            ),
+            DropdownMenuItem(
+              child: Text("Local Reseller"),
+              value: 2,
+            ),
+            DropdownMenuItem(
+                child: Text("Reseller"),
+                value: 3
+            ),
+            DropdownMenuItem(
+                child: Text("Member"),
+                value: 4
+            ),
+            DropdownMenuItem(
+                child: Text("Wholesaler"),
+                value: 5
+            )
+          ],
+          onChanged: (value) {
+            //print(value);
+            setState(() {
+              _value = value;
+            });
+          }),
       ListTile(
         title: Text("Courier Charge"),
         dense: true,
@@ -275,23 +362,34 @@ class _MyAppState extends State<ScannerWidget> {
       ),
     ]);
 */
-    /*contentList.addAll(_possibleFormats.map(
-          (format) => CheckboxListTile(
-        value: selectedFormats.contains(format),
-        onChanged: (i) {
-          setState(() => selectedFormats.contains(format)
-              ? selectedFormats.remove(format)
-              : selectedFormats.add(format));
-        },
-        title: Text(format.toString()),
-      ),
-    ));*/
 
-    return MaterialApp(
+
+    return  Scaffold(
+      key: _key,
+      backgroundColor: white,
+      appBar: Widget_Factory().getAppBar(context, _key, "Home"),
+      drawer: Widget_Factory().getNavigationDrawer(context),
+      bottomNavigationBar: Widget_Factory().bottomNavigationAppBar(context),
+      //endDrawer: Widget_Factory().getRightDrawer(context),
+      body: ListView(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              children: contentList,
+            ),
+    );
+
+    /*MaterialApp(
+        key: _key,
+        backgroundColor: white,
+        appBar: Widget_Factory().getAppBar(context, _key, "Home"),
+        drawer: Widget_Factory().getNavigationDrawer(context),
+        bottomNavigationBar: Widget_Factory().bottomNavigationAppBar(context),
+        //endDrawer: Widget_Factory().getRightDrawer(context),
+        body: Widget_Factory().getHomePageBody(context, _key),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Barcode Scanner Example'),
+          title: Text('Barcode Scanner '),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.camera),
@@ -306,7 +404,7 @@ class _MyAppState extends State<ScannerWidget> {
           children: contentList,
         ),
       ),
-    );
+    );*/
   }
 
   Future scan() async {

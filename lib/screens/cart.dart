@@ -30,9 +30,7 @@ class _CartScreenState extends State<CartScreen> {
       appBar: Widget_Factory().getAppBar(context, _key, "Cart Page"),
       drawer: Widget_Factory().getNavigationDrawer(context),
       //endDrawer: Widget_Factory().getRightDrawer(context),
-      body: appProvider.isLoading
-          ? Loading()
-          : Widget_Factory().getCartPageBOdy(context, _key),
+      body: Widget_Factory().getCartPageBody(context, _key),
       bottomNavigationBar: Widget_Factory().bottomNavigationAppBar(context),
       //bottomNavigationBar:
     );

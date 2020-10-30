@@ -53,7 +53,7 @@ class _SignUpState extends State<SignUp> {
                           child: Container(
                               alignment: Alignment.topCenter,
                               child: Image.asset(
-                                'images/template.png',
+                                'assets/images/template.png',
                                 width: 260.0,
                               )),
                         ),

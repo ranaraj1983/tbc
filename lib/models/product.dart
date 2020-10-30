@@ -21,7 +21,9 @@ class ProductModel {
   static const COLORS = "colors";
   static const VNAME = "vName";
   static const VID = "vid";
+  static const WEIGHT = "weight";
 
+  String _weight;
   String _id;
   String _name;
   String _picture;
@@ -43,6 +45,7 @@ class ProductModel {
   String _vId;
 
 
+  String get weight => _weight;
 
   String get id => _id;
 
@@ -82,10 +85,11 @@ class ProductModel {
   ProductModel.fromSnapshot(DocumentSnapshot snapshot) {
 
 
-    _id = snapshot.get("id");
-    _brand = snapshot.get("brand");
-    _sale = snapshot.get("sale");
-    _description = snapshot.get("description") ?? " ";
+    _id = snapshot.get(ID);
+    _weight = snapshot.get(WEIGHT);
+    _brand = snapshot.get(BRAND);
+    _sale = snapshot.get(SALE);
+    _description = snapshot.get(DESCRIPTION) ?? " ";
     _featured = snapshot.get(FEATURED);
     _cprice = snapshot.get(CPRICE);
     _rprice = snapshot.get(RPRICE);
@@ -97,6 +101,7 @@ class ProductModel {
     _sizes = snapshot.get(SIZES);
     _name = snapshot.get(NAME);
     _picture = snapshot.get(PICTURE);
+    _quantity = int.parse(snapshot.get(QUANTITY));
     //_vName = snapshot.get(VNAME);
     //_vId = snapshot.get(VID);
   }

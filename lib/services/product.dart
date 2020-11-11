@@ -1,3 +1,4 @@
+import 'package:tbc/Util/ProductForm.dart';
 import 'package:tbc/models/product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -34,8 +35,40 @@ class ProductServices {
           "sale" : isSale,
           "sizes": sizes,
           "colors" : colors,
+
         }
         );
+  }
+
+  Future<void> addProductsFromGDatabase(
+      ProductForm product) async{
+    print(product);
+    _firestore.collection(collection).doc(product.name).set(
+        {
+          'id': product.id,
+          'name': product.name,
+          'cprice': product.cprice,
+          'picture': product.picture,
+          "sale" : false,
+          "featured" : false,
+          "vendorName":product.vendorName,
+          "artisanImage":product.artisanImage,
+          "artisanName":product.artisanName,
+          "brand":product.brand,
+          "colors":product.colors,
+          "weight":product.weight,
+          "size":product.size,
+          "quantity":product.quantity,
+          "vprice":product.vprice,
+          "wprice":product.wprice,
+          "lprice":product.lprice,
+          "mprice":product.mprice,
+          "rprice":product.rprice,
+          "description":product.description,
+          "category":product.category.toUpperCase()
+
+        }
+    );
   }
 
 

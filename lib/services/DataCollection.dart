@@ -26,20 +26,20 @@ class DataCollection{
   }
 
   Future<Widget> getImageFromStorage(BuildContext context,
-      String imageUrl, double height, double width) async {
-    return await _getImageFromStorage(imageUrl, height, width);
+      String imageUrl) async {
+    return await _getImageFromStorage(imageUrl);
   }
 
-  Future<Widget> _getImageFromStorage(String imageUrl, double height,
-      double width) async {
-    CachedNetworkImage m;
+  Future<Widget> _getImageFromStorage(String imageUrl) async {
+    //CachedNetworkImage m;
     StorageReference storageReference = await FirebaseStorage.instance
         .getReferenceFromUrl(imageUrl);
 
     return await storageReference.getDownloadURL().then((value) {
-      return m = CachedNetworkImage(
-        height: height,
-        width: width,
+      return CachedNetworkImage(
+        //height: height,
+        //width: width,
+        fit: BoxFit.cover,
         imageUrl: value.toString(),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
             CircularProgressIndicator(value: downloadProgress.progress),
@@ -47,6 +47,13 @@ class DataCollection{
       );
 
     });
+  }
+
+  Future getProductsCollectionWithLimit(int limit) async {
+    QuerySnapshot qs = await firestoreInstance
+        .collection("products").limit(limit)
+        .get();
+    return qs.docs;
   }
 
   Future getProductsCollection() async {
@@ -151,4 +158,24 @@ class DataCollection{
     return await firestoreInstance
         .collection("users").where("userType", isEqualTo: "CUSTOMER").get();
   }
+
+  int getNumberOfUser() {}
+  int getNumberOfOrder(){}
+  Future<int> getNumberOfCategory() async{
+    int size = 0;
+    QuerySnapshot qs = await firestoreInstance
+        .collection("categories")
+        .get();
+    qs.docs.forEach((element) {
+      size = element.data()['Category'].length;
+    });
+    return size;
+  }
+  Future<int> getNumberOProduct() async{
+    QuerySnapshot qs = await firestoreInstance
+        .collection("products")
+        .get();
+    return qs.docs.length;
+  }
+  int getNumberOfOrderReturned(){}
 }

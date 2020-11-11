@@ -84,7 +84,7 @@ class ProductModel {
 
   ProductModel.fromSnapshot(DocumentSnapshot snapshot) {
 
-
+    print(snapshot.get(NAME));
     _id = snapshot.get(ID);
     _weight = snapshot.get(WEIGHT);
     _brand = snapshot.get(BRAND);

@@ -30,6 +30,7 @@ dependencies:
   curved_navigation_bar:
   curved_drawer:
   carousel_slider:
+  carousel_pro:
   transparent_image:
   flutter_spinkit:
   uuid:
@@ -47,16 +48,18 @@ dependencies:
   razorpay_flutter: ^1.2.2
   toast: ^0.1.5
   barcode_scan: ^3.0.1
-  http: ^0.12.2
-  pdf: ^1.11.2
+  http:
+  pdf:
   open_file:
   geolocator:
   path_provider:
+  flutter_full_pdf_viewer:
   font_awesome_flutter:
   scratcher:
   flutter_mobx:
   mobx:
   flutter_svg:
+  gsheets: ^0.2.6
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -101,6 +104,7 @@ flutter:
           weight: 700
         - asset: assets/fonts/muli/Muli-Light.ttf
           weight: 300
+        - asset: assets/fonts/opensans/OpenSans-Bold.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:tbc/Util/ProductForm.dart';
 import 'package:tbc/models/address.dart';
 import 'package:tbc/models/cart_item.dart';
 import 'package:tbc/models/order.dart';
@@ -119,6 +120,8 @@ class UserProvider with ChangeNotifier {
         "color": color
       };
 
+
+
       CartItemModel item = CartItemModel.fromMap(cartItem);
 //      if(!itemExists){
       //print("CART ITEMS ARE: ${cart.toString()}");
@@ -131,7 +134,37 @@ class UserProvider with ChangeNotifier {
       return false;
     }
   }
+  Future<bool> addToCartGDataBase(
+      {ProductForm product, String size, String color, int price}) async {
+    try {
+      var uuid = Uuid();
+      String cartItemId = uuid.v4();
+      List<CartItemModel> cart = _userModel.cart;
 
+      Map cartItem = {
+        "id": cartItemId,
+        "name": product.name,
+        "image": product.picture,
+        "productId": product.id,
+        "price": price,
+        "size": size,
+        "color": color
+      };
+
+
+
+      CartItemModel item = CartItemModel.fromMap(cartItem);
+//      if(!itemExists){
+      //print("CART ITEMS ARE: ${cart.toString()}");
+      _userServices.addToCart(userId: _user.uid, cartItem: item);
+//      }
+
+      return true;
+    } catch (e) {
+      print("THE ERROR ${e.toString()}");
+      return false;
+    }
+  }
   Future<bool> removeFromCart({CartItemModel cartItem})async{
     print("THE PRODUC IS: ${cartItem.toString()}");
 

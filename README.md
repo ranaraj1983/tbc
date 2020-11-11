@@ -16,3 +16,6 @@ List.generate(
             },
           ),
         ),
+https://docs.google.com/spreadsheets/d/e/2PACX-1vQGnBqOmakQxip9bhd_W76N3-8rYUQ1KE1r0gPycNpP03EPZpwPF6AHeTmhayy4KdPuzF2taF4ON6S_/pubhtml
+https://docs.google.com/spreadsheets/d/1pKvoWIGOWBQhdKMivOC7jytSkI8i02S-qPMBGfHJ0DA/edit#gid=0
+https://script.google.com/macros/s/AKfycbzK8EgDb9tt9sZ3Z39fXq1IGvRTmuNGhdMymylRrKW5PHVjcg/exec

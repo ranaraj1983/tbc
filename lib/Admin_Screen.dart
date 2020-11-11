@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:tbc/Util/FormController.dart';
+import 'package:tbc/Util/ProductForm.dart';
 import 'package:tbc/screens/add_product.dart';
+import 'package:tbc/services/DataCollection.dart';
 import 'package:tbc/services/brand.dart';
 import 'package:tbc/services/category.dart';
+import 'package:tbc/services/product.dart';
 
 
 
@@ -23,8 +27,18 @@ class _AdminState extends State<Admin> {
   GlobalKey<FormState> _brandFormKey = GlobalKey();
   BrandService _brandService = BrandService();
   CategoryService _categoryService = CategoryService();
+  List<ProductForm> productItems = List<ProductForm>();
+  int numOfCategory;
+  @override
+  void initState() {
+    super.initState();
+    DataCollection().getNumberOfCategory().then((value) {
+      setState((){
+        numOfCategory = value;
+      });
+    });
 
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,182 +80,24 @@ class _AdminState extends State<Admin> {
   Widget _loadScreen() {
     switch (_selectedPage) {
       case Page.dashboard:
-        return Column(
-          children: <Widget>[
-            ListTile(
-              subtitle: FlatButton.icon(
-                onPressed: null,
-                icon: Icon(
-                  Icons.attach_money,
-                  size: 30.0,
-                  color: Colors.green,
-                ),
-                label: Text('12,000',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 30.0, color: Colors.green)),
-              ),
-              title: Text(
-                'Revenue',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24.0, color: Colors.grey),
-              ),
-            ),
-            Expanded(
-              child: GridView(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2),
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.people_outline),
-                              label: Text("Users")),
-                          subtitle: Text(
-                            '7',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.category),
-                              label: Text("Categories")),
-                          subtitle: Text(
-                            '23',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.track_changes),
-                              label: Text("Producs")),
-                          subtitle: Text(
-                            '120',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.tag_faces),
-                              label: Text("Sold")),
-                          subtitle: Text(
-                            '13',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.shopping_cart),
-                              label: Text("Orders")),
-                          subtitle: Text(
-                            '5',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.close),
-                              label: Text("Return")),
-                          subtitle: Text(
-                            '0',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
+        return _getDashBoardWidget();
         break;
       case Page.manage:
-        return ListView(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.add),
-              title: Text("Add product"),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => AddProduct()));
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.change_history),
-              title: Text("Products list"),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_circle),
-              title: Text("Add category"),
-              onTap: () {
-                _categoryAlert();
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.category),
-              title: Text("Category list"),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_circle_outline),
-              title: Text("Add brand"),
-              onTap: () {
-                _brandAlert();
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.library_books),
-              title: Text("brand list"),
-              onTap: () {
-                _brandService.getBrands();
-              },
-            ),
-            Divider(),
-          ],
-        );
+        return _getManageAdminWidget();
         break;
       default:
         return Container();
     }
   }
+  void _syncGDataBaseToRealDatabase() {
+    ProductServices _productService = ProductServices();
+    productItems.forEach((product) {
+      _productService.addProductsFromGDatabase(product);
 
+    });
+
+
+  }
   void _categoryAlert() {
     var alert = new AlertDialog(
       content: Form(
@@ -308,5 +164,198 @@ class _AdminState extends State<Admin> {
     );
 
     showDialog(context: context, builder: (_) => alert);
+  }
+
+  Widget _getDashBoardWidget() {
+    int numOfUser = DataCollection().getNumberOfUser();
+    int numOfOder = DataCollection().getNumberOfOrder();
+
+    Future<int> numOfProduct = DataCollection().getNumberOProduct();
+    int numOfOrderReturned = DataCollection().getNumberOfOrderReturned();
+    return Column(
+      children: <Widget>[
+        ListTile(
+          subtitle: FlatButton.icon(
+            onPressed: null,
+            icon: Icon(
+              null,
+              size: 30.0,
+              color: Colors.green,
+            ),
+            label: Text("\u20B9 "+ '12,000',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 30.0, color: Colors.green)),
+          ),
+          title: Text(
+            'Revenue',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 24.0, color: Colors.grey),
+          ),
+        ),
+        Expanded(
+          child: GridView(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Card(
+                  child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.people_outline),
+                          label: Text("Users")),
+                      subtitle: Text(
+                        '${numOfUser}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Card(
+                  child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.category),
+                          label: Text("Categories")),
+                      subtitle: Text(
+                        '${numOfCategory}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(22.0),
+                child: Card(
+                  child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.track_changes),
+                          label: Text("Producs")),
+                      subtitle: Text(
+                        '${numOfProduct}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(22.0),
+                child: Card(
+                  child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.tag_faces),
+                          label: Text("Sold")),
+                      subtitle: Text(
+                        '13',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(22.0),
+                child: Card(
+                  child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.shopping_cart),
+                          label: Text("Orders")),
+                      subtitle: Text(
+                        '${numOfOder}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(22.0),
+                child: Card(
+                  child: ListTile(
+                      title: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.close),
+                          label: Text("Return")),
+                      subtitle: Text(
+                        '${numOfOrderReturned}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: active, fontSize: 60.0),
+                      )),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _getManageAdminWidget() {
+    return ListView(
+      children: <Widget>[
+        ListTile(
+          leading: Icon(Icons.sync_disabled_sharp),
+          title: Text("DB Sync"),
+          onTap: () {
+            FormController().getProductList().then((productItems) {
+              setState(() {
+                this.productItems = productItems;
+              });
+            });
+
+            _syncGDataBaseToRealDatabase();
+          },
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.add),
+          title: Text("Add product"),
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => AddProduct()));
+          },
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.change_history),
+          title: Text("Products list"),
+          onTap: () {},
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.add_circle),
+          title: Text("Add category"),
+          onTap: () {
+            _categoryAlert();
+          },
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.category),
+          title: Text("Category list"),
+          onTap: () {},
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.add_circle_outline),
+          title: Text("Add brand"),
+          onTap: () {
+            _brandAlert();
+          },
+        ),
+        Divider(),
+        ListTile(
+          leading: Icon(Icons.library_books),
+          title: Text("brand list"),
+          onTap: () {
+            _brandService.getBrands();
+          },
+        ),
+        Divider(),
+      ],
+    );
   }
 }

@@ -18,11 +18,19 @@ class ProductForm {
   int rprice;
   String description;
   String category;
+  String featured;
+  String sale;
+  int discount;
+  String season;
+  String festival;
+  String occasion;
+
 
   ProductForm(this.id, this.name, this.cprice, this.picture, this.vendorName,
       this.artisanImage, this.artisanName, this.brand, this.colors, this.weight,
       this.size, this.quantity, this.vprice, this.wprice, this.lprice, this.mprice,
-      this.rprice, this.description, this.category);
+      this.rprice, this.description, this.category, this.featured, this.sale,
+      this.discount, this.festival, this.occasion, this.season);
 
   factory ProductForm.fromJson(dynamic json) {
     return ProductForm(
@@ -44,8 +52,13 @@ class ProductForm {
         json['mprice'],
         json['rprice'],
         "${json['description']}",
-        "${json['category']}"
-
+        "${json['category']}",
+        "${json['featured']}",
+        "${json['sale']}",
+        json['discount'],
+      "${json['festival']}",
+      "${json['occasion']}",
+      "${json['season']}",
 
     );
   }
@@ -70,6 +83,12 @@ class ProductForm {
      "mprice":mprice,
      "rprice":rprice,
      "description":description,
-     "category":category
+     "category":category,
+    'featured':featured,
+    'sale':sale,
+    'discount':discount,
+    'season':season,
+    'occasion':occasion,
+    'festival':festival,
   };
 }

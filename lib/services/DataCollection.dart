@@ -111,26 +111,33 @@ class DataCollection{
         .collection("users").where("uid", isEqualTo: uid).get();
   }
 
-  int getProductPrice(data, UserModel user) {
+
+  int getProductPrice(ProductModel data, UserModel user) {
 
     int price = 0;
     String userType;
 
-    user == null ? price = data.get("cprice"): userType = user.userType;
+    user == null ? price = data.cprice: userType = user.userType;
 
     userType == "EMP" ?
-    price = data.get("mprice")
+    price = data.mprice
         :
     userType == "RESELLER" ?
-    price = data.get("rprice")
+    price = data.rprice
         :
     userType == "WHOLESALER" ?
-    price = data.get("wprice")
+    price = data.wprice
         :
     userType == "CUSTOMER" ?
-    price = data.get("cprice")
+    price = data.cprice
         :
-    price = data.get("cprice");
+    userType == "ADMIN" ?
+    price = data.mprice
+        :
+    userType == "LRESELLER" ?
+    price = data.lprice
+        :
+    price = data.cprice;
 
     return price;
   }
@@ -145,9 +152,11 @@ class DataCollection{
         .collection("orders").where("userId", isEqualTo: _auth.currentUser.uid).get();
   }
 
-  Future getProductsCollectionByCategory(String categoryName) async{
-    return await firestoreInstance
-        .collection("products").where("category", isEqualTo: categoryName).get();
+  Future getProductsCollectionByCategory(String categoryName, String filterType) async{
+
+    QuerySnapshot qs =  await firestoreInstance
+        .collection("products").where("${filterType}", isEqualTo: categoryName).get();
+    return qs;
   }
 
   void sellProductFromApp(ProductModel productModel) {
@@ -178,4 +187,22 @@ class DataCollection{
     return qs.docs.length;
   }
   int getNumberOfOrderReturned(){}
+
+  Future getProductsCollectionByOfferType(String offer) async{
+     QuerySnapshot qs = await firestoreInstance
+        .collection("products").where("discount", isEqualTo: int.parse(offer)).get();
+    return qs;
+  }
+
+  Future getProductsCollectionByFestiveType(String festiveName) async{
+    QuerySnapshot qs = await firestoreInstance
+        .collection("products").where("festive", isEqualTo: int.parse(festiveName)).get();
+    return qs;
+  }
+
+  Future getProductsCollectionBySeasonType(String seasonName) async{
+    QuerySnapshot qs = await firestoreInstance
+        .collection("products").where("season", isEqualTo: int.parse(seasonName)).get();
+    return qs;
+  }
 }

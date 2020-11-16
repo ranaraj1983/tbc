@@ -30,7 +30,7 @@ class FormController {
   }
   Future<List<ProductForm>> getProductList() async {
     return await http.get(URL).then((response) {
-      print(response.body);
+
       var jsonFeedback = convert.jsonDecode(response.body) as List;
       print(jsonFeedback);
       return jsonFeedback.map((json) => ProductForm.fromJson(json)).toList();

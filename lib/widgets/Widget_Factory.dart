@@ -33,6 +33,7 @@ import 'package:tbc/screens/Category.dart';
 import 'package:tbc/screens/Offer.dart';
 import 'package:tbc/screens/Payment_Screen.dart';
 import 'package:tbc/screens/ProductList.dart';
+import 'package:tbc/screens/Scanner.dart';
 import 'package:tbc/screens/Support.dart';
 import 'package:tbc/screens/Terms_And_Condition.dart';
 import 'package:tbc/screens/add_address.dart';
@@ -57,6 +58,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class Widget_Factory{
+  int _value = 1;
 
   Widget getAppBar(BuildContext context, GlobalKey<ScaffoldState> _key, String titleText){
     //final CartItemModel = Provider.of<>(context);
@@ -90,7 +92,7 @@ class Widget_Factory{
 
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ScannerWidget()));
+                  MaterialPageRoute(builder: (context) => Scanner()));
 
             },
             child: Icon(Icons.qr_code_scanner_sharp),
@@ -651,19 +653,38 @@ class Widget_Factory{
             SizedBox(height: getProportionateScreenWidth(1)),
             _MainBanner(context),
             SizedBox(height: getProportionateScreenWidth(10)),
+            Text("Products By Category"),
             _categories(context),
-            _discountBanner(),
-            //_specialOffers(),
+            SizedBox(height: getProportionateScreenWidth(10)),
+            _discountBanner(context),
+            Text("Products By Season"),
+            _bySeasonProducts(context),
+            Text("Products By Festival"),
+             _byFestivalProducts(context),
+            SizedBox(height: getProportionateScreenWidth(10)),
+             _promotionalBanner(context),
+            Text("Products By Offer"),
+            _specialOffers(),
+            Text("Popular Products"),
             _popularProducts(context),
             SizedBox(height: getProportionateScreenWidth(30)),
+            Text("New Arrival Products"),
             _newArrivalProducts(context),
             SizedBox(height: getProportionateScreenWidth(30)),
             //_newArrivalProducts(context),
             //_artisansChoiceProducts(context),
-            //_onSaleProducts(context),
+            Text("Products on Sale"),
+            _onSaleProducts(context),
+            Text("Products By Color"),
+            _byColorProducts(context),
+            SizedBox(height: getProportionateScreenWidth(30)),
+            Text("Products By Offer"),
             _byOfferProducts(context),
-           // _dealOfTheDayProducts(context),
-            //_byColorProducts(context),
+            //_dealOfTheDayProducts(context),
+
+
+
+            SizedBox(height: getProportionateScreenWidth(30)),
           ],
         ),
       ),
@@ -1113,7 +1134,7 @@ class Widget_Factory{
                   );
                 }),
           ),
-
+        userProvider.userModel.userType == "ADMIN" ?
           Container(
             child: RaisedButton(
               child: Text("Select Customer"),
@@ -1121,8 +1142,8 @@ class Widget_Factory{
                 _showCustomerPopUp(context);
               },
             ),
-          ),
-          Container(
+          ) : Text(""),
+          userProvider.userModel.userType == "ADMIN" ? Container(
             child: RaisedButton(
               child: Text("Create Customer"),
               onPressed: (){
@@ -1130,8 +1151,8 @@ class Widget_Factory{
               },
             ),
 
-          ),
-          Container(
+          ) : Text(""),
+          userProvider.userModel.userType == "ADMIN" ? Container(
             child: RaisedButton(
               child: Text("Special Discount"),
               onPressed: (){
@@ -1139,7 +1160,7 @@ class Widget_Factory{
               },
             ),
 
-          ),
+          ): Text(""),
 
           Container(
             height: 70,
@@ -1230,7 +1251,7 @@ class Widget_Factory{
                                           SizedBox(
                                             width: 320.0,
                                             child: RaisedButton(
-                                              onPressed: () async {
+                                              onPressed: userProvider.userModel.userType == "ADMIN" ? () async {
                                                 print(this.custName);
                                                 var uuid = Uuid();
                                                 String id = uuid.v4();
@@ -1271,6 +1292,12 @@ class Widget_Factory{
                                                     content: Text(
                                                         "Order created!")));
                                             Navigator.pop(context);*/
+                                              } : (){
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                    builder: (context) =>
+                                                    Payment_Screen(userProvider.userModel.name)));
                                               },
                                               child: Text(
                                                 "Accept",
@@ -1322,7 +1349,7 @@ class Widget_Factory{
       double _size) {
     final userProvider = Provider.of<UserProvider>(context);
     final appProvider = Provider.of<AppProvider>(context);
-    int price = Widget_Factory().getProductPrice(userProvider.userModel.userType, widget.product);
+    int price = DataCollection().getProductPrice(widget.product, userProvider.userModel);
     String stock = widget.product.quantity <= 0 ? "Out of Stock" : "In Stock";
     return SafeArea(
         child: Container(
@@ -1953,40 +1980,46 @@ class Widget_Factory{
 
   }
 
-  Widget _discountBanner() {
-    return Container(
-      // height: 90,
-      width: double.infinity,
-      margin: EdgeInsets.all(getProportionateScreenWidth(20)),
-      padding: EdgeInsets.symmetric(
-        horizontal: getProportionateScreenWidth(20),
-        vertical: getProportionateScreenWidth(15),
-      ),
-      decoration: BoxDecoration(
-        color: Color(0xFF4A3298),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text.rich(
-        TextSpan(
-          style: TextStyle(color: Colors.white),
-          children: [
-            TextSpan(text: "A Summer Surpise\n"),
-            TextSpan(
-              text: "Cashback 20%",
-              style: TextStyle(
-                fontSize: getProportionateScreenWidth(24),
-                fontWeight: FontWeight.bold,
+  Widget _discountBanner(BuildContext context) {
+    return GestureDetector(
+        onTap: (){
+        changeScreen(context, ProductList('20',"discount","20"));
+      },
+      child: Container(
+        // height: 90,
+        width: double.infinity,
+        margin: EdgeInsets.all(getProportionateScreenWidth(20)),
+        padding: EdgeInsets.symmetric(
+          horizontal: getProportionateScreenWidth(20),
+          vertical: getProportionateScreenWidth(15),
+        ),
+        decoration: BoxDecoration(
+          color: Color(0xFF4A3298),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text.rich(
+          TextSpan(
+            style: TextStyle(color: Colors.white),
+            children: [
+              TextSpan(text: "A Summer Surpise\n"),
+              TextSpan(
+                text: "Cashback 20%",
+                style: TextStyle(
+                  fontSize: getProportionateScreenWidth(24),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _categories(BuildContext context) {
+    const filterType = "category";
     return  Container(
-      height: 400,
+      //height: 400,
       child: GridView.count(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
@@ -2002,7 +2035,7 @@ class Widget_Factory{
               ),
               child: GestureDetector(
                 onTap: (){
-                  changeScreen(context, ProductList("Tushar"));
+                  changeScreen(context, ProductList("TUSHAR", filterType, null));
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
@@ -2023,7 +2056,7 @@ class Widget_Factory{
               ),
               child:  GestureDetector(
                 onTap: (){
-                  changeScreen(context, ProductList("Resham"));
+                  changeScreen(context, ProductList("RESHAM", filterType, null));
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
@@ -2042,7 +2075,7 @@ class Widget_Factory{
               ),
               child:  GestureDetector(
                 onTap: (){
-                  changeScreen(context, ProductList("Jamdani"));
+                  changeScreen(context, ProductList("JAMDANI", filterType, null));
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
@@ -2061,7 +2094,7 @@ class Widget_Factory{
               ),
               child:  GestureDetector(
                 onTap: (){
-                  changeScreen(context, ProductList("Cotton"));
+                  changeScreen(context, ProductList("COTTON", filterType, null));
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
@@ -2107,6 +2140,7 @@ class Widget_Factory{
   }
 
   Widget _specialOffers() {
+    const filterType = "discount";
     return Column(
       children: [
         Padding(
@@ -2123,13 +2157,13 @@ class Widget_Factory{
           child: Row(
             children: [
               SpecialOfferCard(
-                image: "assets/images/Image Banner 2.png",
+                image: "assets/images/POSTER5.jpg",
                 category: "Smartphone",
                 numOfBrands: 18,
                 press: () {},
               ),
               SpecialOfferCard(
-                image: "assets/images/Image Banner 3.png",
+                image: "assets/images/POSTER8.png",
                 category: "Fashion",
                 numOfBrands: 24,
                 press: () {},
@@ -2146,7 +2180,7 @@ class Widget_Factory{
   Widget _popularProducts(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     return FutureBuilder(
-                  future: DataCollection().getProductsCollectionWithLimit(10),
+                  future: DataCollection().getProductsCollectionWithLimit(4),
                   builder: (_, AsyncSnapshot snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
@@ -2161,30 +2195,28 @@ class Widget_Factory{
                           shrinkWrap: true,
                           gridDelegate:
                           new SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3),
+                              crossAxisCount: 2),
                           itemCount: snapshot.data.length,
                           itemBuilder: (context, index) {
                             ProductModel productModel = ProductModel.fromSnapshot(snapshot.data[index]);
                             DocumentSnapshot data = snapshot.data[index];
-                            int price =  DataCollection().getProductPrice(data, userProvider.userModel);
-
-                            return _getPopularProducts(price, productModel, data, context);
+                            ProductModel product = ProductModel.fromSnapshot(data);
+                            int price =  DataCollection().getProductPrice(product, userProvider.userModel);
+                            return commonProductCard(context, data.get('picture'), data.get('name'), price, productModel);
+                            //return _getPopularProducts(price, productModel, data, context);
                           });
                     }
                   });
 
-
-
-
-
-
   }
 
-  Widget getProductListPageBody(BuildContext context, GlobalKey<ScaffoldState> key, String categoryName) {
+  Widget getProductListPageBody(BuildContext context, GlobalKey<ScaffoldState> key,
+      String categoryName, String filterType, String offerValue) {
     final userProvider = Provider.of<UserProvider>(context);
     return
           FutureBuilder(
-              future: DataCollection().getProductsCollectionByCategory(categoryName.toUpperCase()),
+              future: offerValue == null ? DataCollection().getProductsCollectionByCategory(categoryName, filterType)
+                                        : DataCollection().getProductsCollectionByOfferType(offerValue),
               builder: (_, AsyncSnapshot snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -2206,7 +2238,7 @@ class Widget_Factory{
                       itemBuilder: (context, index) {
                         ProductModel productModel = ProductModel.fromSnapshot(snapshot.data.docs[index]);
                         var d = snapshot.data.docs;
-                        int price =  DataCollection().getProductPrice(snapshot.data.docs[index], userProvider.userModel);
+                        int price =  DataCollection().getProductPrice(productModel, userProvider.userModel);
                         print(price);
                         return commonProductCard(context,snapshot.data.docs[index].get('picture'),
                             snapshot.data.docs[index].documentID, price, productModel);
@@ -2220,13 +2252,19 @@ class Widget_Factory{
   Widget commonProductCard(BuildContext context, String imageUrl, String productName,
       int price, ProductModel productModel){
     return Card(
+              color: Colors.white54,
               clipBehavior: Clip.hardEdge,
+              elevation: 10.0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(5.0),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(20.0),
+              ),
+              child: Stack(
+
+                //crossAxisAlignment: CrossAxisAlignment.center,
+                //mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   GestureDetector(
                     onTap: (){
@@ -2239,9 +2277,9 @@ class Widget_Factory{
                       borderRadius: BorderRadius.circular(10.0),
 
                       child:CachedNetworkImage(
-                        //height: 200,
+                        height: 150,
                         //width: 200,
-                        fit: BoxFit.fill,
+                        fit: BoxFit.fitWidth,
                         imageUrl: imageUrl,
                         progressIndicatorBuilder: (context, url, downloadProgress) =>
                             CircularProgressIndicator(value: downloadProgress.progress),
@@ -2250,11 +2288,46 @@ class Widget_Factory{
 
                     ),
                   ),
-                  Expanded(
-                    child: Text(productName + " ${price}"),
+                  /*Container(
+                    margin: EdgeInsets.only(top: 52,left: 5),
+                    height: 90,
+                    //width: 90,
+                    child: Text('${productName}',style: TextStyle(fontSize: 22.0,fontWeight: FontWeight.bold),),
+                  ),*/
+                  Container(
+                    margin: EdgeInsets.only(top: 150,left: 75),
+                    height: 40,width: 90,
+                    child: Stack(
+                      children: <Widget>[
+                        RaisedButton(
+                            onPressed: (){
+                              changeScreen(context, ProductDetails(product: productModel,));
+                              },
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+                            padding: EdgeInsets.all(0.0),
+                            child:Ink(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [Colors.redAccent,Colors.red[200]],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.topRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.0)
+
+                              ),
+                            )
+                        ),
+                        Center(child: Text('Buy Now',style: TextStyle(color: Colors.white),))
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 152,left: 5),
+                    child: Text('₹ ${price}',style: TextStyle(fontSize: 12.0,fontWeight: FontWeight.bold),),
                   ),
 
+
                 ],
+              ),
               ),
             );
 
@@ -2279,22 +2352,28 @@ class Widget_Factory{
                     child: Text("Loading...."),
                   );
                 } else {
-
-                  return GridView.builder(
+                  Map catMap = snapshot.data[0].get("Category");
+                  return GridView.count(
 
                       primary: true,
                       physics: ScrollPhysics(),
                       padding: const EdgeInsets.all(5.0),
                       shrinkWrap: true,
-                      gridDelegate:
+                      crossAxisCount: 2,
+
+                      children: _getCategoryCard(context,catMap),
+
+                      /*gridDelegate:
                       new SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2),
-                      itemCount: snapshot.data[0].get("name").length,
+                      itemCount: snapshot.data[0].get("Category").length,//snapshot.data[0].get("name").length,
                       itemBuilder: (context, index) {
-                      String name = snapshot.data[0].get("name")[index];
+                      String name = snapshot.data[0].get("Category")[index];
+                      //snapshot.data[0].get("Category").
 
                         return _getCategoryCard(context,name);
-                      });
+                      }*/
+                      );
                 }
               }),
         ],
@@ -2334,61 +2413,53 @@ class Widget_Factory{
 
   }
 
-  Widget _getCategoryCard(BuildContext context, String name) {
-    String categoryName;
-    if(name == "Linen"){
-      categoryName = "Linen.jpg";
-    }else if(name == "Cotton"){
-      categoryName = "Cotton.jpg";
-    }else if(name == "Tushar"){
-      categoryName = "Tushar.jpg";
-    }else if(name == "Resham"){
-      categoryName = "Resham.jpg";
-    }else if(name == "Art Silk"){
-      categoryName = "ArtSilk.jpg";
-    }else if(name == "Cotton Silk"){
-      categoryName = "CottonSilk.jpg";
-    }else if(name == "Silk"){
-      categoryName = "Muslin.jpg";
-    }
-    return Container(
-      height: 1000,
+  List<Widget> _getCategoryCard(BuildContext context, Map catMap) {
+    const filterType = "category";
+    List<Widget> categoryList = new List<Widget>();
+    catMap.forEach((name, value) {
+      String categoryName = name;
+      categoryList.add(
+        Container(
+          //height: 1000,
 
-      margin:EdgeInsets.all(8.0),
-      child: GestureDetector(
+          margin:EdgeInsets.all(8.0),
+          child: GestureDetector(
 
-        onTap: () {
-          changeScreen(context, ProductList(name));
-        },
-        child: Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Image.asset(
+            onTap: () {
+              changeScreen(context, ProductList(categoryName.toUpperCase(),filterType, null));
+            },
+            child:
+                  Card(
+                    shape: RoundedRectangleBorder(borderRadius:
+                    BorderRadius.all(Radius.circular(8.0))),
+                    child: Image.network(
 
-                  "assets/images/${categoryName}",
-                height: 100,
-                fit:BoxFit.fill,
-                alignment: Alignment.center,
-              ),
-              Center(
-                child: Text(
-                  name,
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w700,
-
-
+                      "${value}",
+                      //height: 100,
+                      fit:BoxFit.fill,
+                      alignment: Alignment.center,
+                    ),
                   ),
-                ),
-              ),
 
-            ],
+                  /*Center(
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w700,
+
+
+                      ),
+                    ),
+                  ),*/
+
+
+
           ),
-        ),
-      ),
-    );
+        )
+      );
+    });
+    return categoryList;
 
   }
 
@@ -2399,7 +2470,9 @@ class Widget_Factory{
       height: 500,
       width: 200,
       margin:EdgeInsets.all(8.0),
-      child:  Column(
+      child:  commonProductCard(context, data.get('picture'), productModel.name, price, productModel),
+
+      /*Column(
             children: <Widget>[
               GestureDetector(
                 onTap: () {
@@ -2417,7 +2490,7 @@ class Widget_Factory{
 
               Text(price.toString()),
             ],
-          ),
+          ),*/
 
         //),
 
@@ -2665,7 +2738,7 @@ class Widget_Factory{
     );
   }
   Widget _newArrivalProducts(context){
-
+    const filterType = "category";
     return Container(
       height: 400,
       child: GridView.count(
@@ -2676,84 +2749,11 @@ class Widget_Factory{
         crossAxisCount: 2,
         // Generate 100 widgets that display their index in the List.
         children: [
-          Card(
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: GestureDetector(
-              onTap: (){
-                changeScreen(context, ProductList("Linen"));
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
+          _commonPosterCard("COTTON",filterType,"assets/images/LINENP2.png",context, null),
+          _commonPosterCard("SILK",filterType,"assets/images/SILKP2.png",context, null),
+          _commonPosterCard("LINEN",filterType,"assets/images/LINENP1.png",context, null),
+          _commonPosterCard("COUPLE SET",filterType,"assets/images/COUPLESETP1.png",context, null),
 
-                child:Image.asset(
-                  "assets/images/LINENP1.png",
-                  fit:BoxFit.cover,
-
-                ),
-              ),
-            ),
-
-          ),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child:  GestureDetector(
-                onTap: (){
-                  changeScreen(context, ProductList("Silk"));
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-
-                  child:Image.asset(
-                    "assets/images/SILKP2.png",
-                    fit:BoxFit.cover,
-                  ),
-              ),
-            ),
-          ),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child:  GestureDetector(
-              onTap: (){
-                changeScreen(context, ProductList("Cotton"));
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
-
-                child:Image.asset(
-                  "assets/images/LINENP2.png",
-                  fit:BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child:  GestureDetector(
-              onTap: (){
-                changeScreen(context, ProductList("Couple Set"));
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
-
-                child:Image.asset(
-                    "assets/images/COUPLESETP1.png",
-                  fit:BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
         ]
       ),
     );
@@ -2762,8 +2762,120 @@ class Widget_Factory{
 
 
   _artisansChoiceProducts(context){}
-  _onSaleProducts(context){}
+  Widget _onSaleProducts(context){
+    const filterType = "discount";
+    return Container(
+        height: 400,
+        child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            // Create a grid with 2 columns. If you change the scrollDirection to
+            // horizontal, this produces 2 rows.
+            crossAxisCount: 2,
+            // Generate 100 widgets that display their index in the List.
+            children: [
+              _commonPosterCard("5",filterType, "assets/images/OFFER5.png",  context,"5"),
+              _commonPosterCard("10",filterType, "assets/images/OFFER10.png",  context,"10"),
+              _commonPosterCard("30",filterType, "assets/images/OFFER30.png",  context,"30"),
+              _commonPosterCard("40",filterType, "assets/images/OFFER40.png",  context,"40"),
+            ]
+        )
+    );
+  }
+
   Widget _byOfferProducts(context){
+    const filterType = "discount";
+    return Container(
+        height: 400,
+        child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            // Create a grid with 2 columns. If you change the scrollDirection to
+            // horizontal, this produces 2 rows.
+            crossAxisCount: 2,
+            // Generate 100 widgets that display their index in the List.
+            children: [
+              _commonPosterCard("5",filterType, "assets/images/OFFER5.png",  context,"5"),
+              _commonPosterCard("10",filterType, "assets/images/OFFER10.png",  context,"10"),
+              _commonPosterCard("30", filterType,"assets/images/OFFER30.png",  context,"30"),
+              _commonPosterCard("40",filterType, "assets/images/OFFER40.png",  context,"40"),
+            ]
+        )
+    );
+  }
+  _dealOfTheDayProducts(context){}
+  Widget _byColorProducts(context){
+    const filterType = "colors";
+    return Container(
+        height: 1000,
+        child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            // Create a grid with 2 columns. If you change the scrollDirection to
+            // horizontal, this produces 2 rows.
+            crossAxisCount: 2,
+            // Generate 100 widgets that display their index in the List.
+            children: [
+
+              _commonPosterCard("Red",filterType, "assets/images/RED.png",  context, null),
+              _commonPosterCard("White", filterType,"assets/images/WHITE.png",  context, null),
+              _commonPosterCard("Yellow", filterType,"assets/images/YELLOW.png",  context, null),
+              _commonPosterCard("Green",filterType, "assets/images/GREEN.png",  context, null),
+              _commonPosterCard("Gray",filterType, "assets/images/GRAY.png",  context, null),
+              _commonPosterCard("Pink",filterType, "assets/images/PINK.png",  context, null),
+              _commonPosterCard("Blue",filterType, "assets/images/BLUE.png",  context, null),
+              _commonPosterCard("Turquoise",filterType, "assets/images/TURQUOISE.png",  context, null),
+              _commonPosterCard("Orange", filterType,"assets/images/ORANGE.png",  context, null),
+            ]
+        )
+    );
+  }
+
+  Widget _bySeasonProducts(BuildContext context) {
+    const filterType = "season";
+    return Container(
+        height: 400,
+        child: GridView.count(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          // Create a grid with 2 columns. If you change the scrollDirection to
+          // horizontal, this produces 2 rows.
+          crossAxisCount: 2,
+          // Generate 100 widgets that display their index in the List.
+          children: [
+            _commonPosterCard("Spring",filterType, "assets/images/Spring1.png",  context, null),
+            _commonPosterCard("Summer",filterType, "assets/images/Summer1.png",  context, null),
+            _commonPosterCard("Winter", filterType,"assets/images/Winter1.png",  context, null),
+
+          ]
+        )
+    );
+  }
+
+  Widget _commonPosterCard(String categoryType, String filterType, String url,
+      BuildContext context, String offerValue) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child:  GestureDetector(
+        onTap: (){
+          changeScreen(context, ProductList(categoryType, filterType, offerValue));
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10.0),
+
+          child:Image.asset(
+            url,
+            fit:BoxFit.cover,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _promotionalBanner(BuildContext context) {
 
     MediaQueryData mediaQuery = MediaQuery.of(context);
     return SizedBox(
@@ -2782,8 +2894,31 @@ class Widget_Factory{
         )
     );
   }
-  _dealOfTheDayProducts(context){}
-  _byColorProducts(context){}
+
+  Widget _byFestivalProducts(BuildContext context) {
+    const filterType = "festival";
+    return Container(
+        height: 600,
+        child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            // Create a grid with 2 columns. If you change the scrollDirection to
+            // horizontal, this produces 2 rows.
+            crossAxisCount: 2,
+            // Generate 100 widgets that display their index in the List.
+            children: [
+
+              _commonPosterCard("Durga Puja", filterType,"assets/images/DURGAPUJA.jpg",  context, null),
+              _commonPosterCard("Rakhi", filterType, "assets/images/rakhi.jpg",  context, null),
+              _commonPosterCard("Bihu", filterType, "assets/images/BIHU.jpg",  context, null),
+              _commonPosterCard("Diwali", filterType,"assets/images/DIWALI.jpg",  context, null),
+              _commonPosterCard("Pongal", filterType,"assets/images/pongal.jpg",  context, null),
+              _commonPosterCard("Onam", filterType,"assets/images/onam.jpg",  context, null),
+
+            ]
+        )
+    );
+  }
 
 }
 

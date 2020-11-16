@@ -7,7 +7,8 @@ class ProductProvider with ChangeNotifier{
   List<ProductModel> products = [];
   List<ProductModel> productsSearched = [];
   ProductModel product ;
-
+  CategoryModel category ;
+  List<CategoryModel> CategoryModels = [];
 
   ProductProvider.initialize(){
     loadProducts();
@@ -30,4 +31,10 @@ class ProductProvider with ChangeNotifier{
   }
 
 
+}
+
+class CategoryModel {
+  String categoryName;
+  String description;
+  String imageUrl;
 }

@@ -37,8 +37,8 @@ class ProductModel {
   int _cprice;
   int _mprice;
   int _lprice;
-  bool _sale;
-  bool _featured;
+  String _sale;
+  String _featured;
   String _colors;
   double _sizes;
   String _vName;
@@ -70,9 +70,9 @@ class ProductModel {
   int get lprice => _lprice;
   int get mprice => _mprice;
 
-  bool get featured => _featured;
+  String get featured => _featured;
 
-  bool get sale => _sale;
+  String get sale => _sale;
 
   String get colors => _colors;
 

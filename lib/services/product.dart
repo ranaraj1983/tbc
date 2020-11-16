@@ -49,8 +49,9 @@ class ProductServices {
           'name': product.name,
           'cprice': product.cprice,
           'picture': product.picture,
-          "sale" : false,
-          "featured" : false,
+          "sale" : product.sale,
+          "featured" : product.featured,
+          "discount" : product.discount,
           "vendorName":product.vendorName,
           "artisanImage":product.artisanImage,
           "artisanName":product.artisanName,
@@ -65,9 +66,12 @@ class ProductServices {
           "mprice":product.mprice,
           "rprice":product.rprice,
           "description":product.description,
-          "category":product.category.toUpperCase()
+          "category":product.category.toUpperCase(),
+          'season':product.season,
+          'occasion':product.occasion,
+          'festival':product.festival,
 
-        }
+        }, SetOptions(merge : true)
     );
   }
 

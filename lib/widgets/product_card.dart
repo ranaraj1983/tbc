@@ -83,7 +83,7 @@ class ProductCard extends StatelessWidget {
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
-                        text: product.sale ? 'ON SALE ' : "",
+                        text: product.sale.toUpperCase() == "TRUE" ? 'ON SALE ' : "",
 
                         style: TextStyle(
                             fontSize: 18,

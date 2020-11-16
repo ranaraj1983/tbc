@@ -5,8 +5,10 @@ import 'package:tbc/screens/add_address.dart';
 import 'package:tbc/widgets/Widget_Factory.dart';
 
 class ProductList extends StatefulWidget {
-  ProductList(this.category);
+  ProductList(this.category, this.filterType, this.offerValue);
   String category;
+  String offerValue;
+  String filterType;
 
   @override
   _ProductList createState() => _ProductList();
@@ -29,7 +31,7 @@ class _ProductList extends State<ProductList> {
       drawer: Widget_Factory().getNavigationDrawer(context),
       bottomNavigationBar: Widget_Factory().bottomNavigationAppBar(context),
       //endDrawer: Widget_Factory().getRightDrawer(context),
-      body: Widget_Factory().getProductListPageBody(context, _key, widget.category),
+      body: Widget_Factory().getProductListPageBody(context, _key, widget.category, widget.filterType, widget.offerValue),
     );
   }
 }

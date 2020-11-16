@@ -133,7 +133,7 @@ class _Paymet_Screen extends State<Payment_Screen> {
                   color: Colors.white
               ),),
               onPressed: (){
-                openCheckout();
+                _chashPaymentOption();
               },
             )
           ],
@@ -144,12 +144,27 @@ class _Paymet_Screen extends State<Payment_Screen> {
 
   void _createOrder(String paymentId, String orderId) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.createOrder("order placed successfully", "SUCCESS",
+    userProvider.createOrder("Cash Payment placed successfully", "SUCCESS",
         userProvider.userModel.totalCartPrice, paymentId, orderId);
   }
 
   void _clearCart() {
 
+  }
+
+  void _chashPaymentOption() {
+    print("Cash Payment success");
+    var uuid = Uuid();
+    String orderId = uuid.v4();
+    String paymentId = uuid.v4();
+    _createOrder(paymentId, orderId);
+    _clearCart();
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                OrdersScreen()));
   }
 
 
